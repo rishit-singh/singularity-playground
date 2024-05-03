@@ -6,7 +6,7 @@ import (
 	"io"
 	"net/http"
 	"os"
-
+	"playground/database"
 	"github.com/joho/godotenv"
 )
 
@@ -128,7 +128,7 @@ func GetPreparations(config APIConfig) (string, error) {
 	// fmt.Println(fmt.Sprintf("%s:%s", config.Username, config.Password))
 
 	response, err := http.DefaultClient.Do(request)
-
+		
 	if err != nil {
 		fmt.Print(err)
 		return "", err
