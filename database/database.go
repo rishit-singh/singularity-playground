@@ -5,5 +5,6 @@ import (
 )
 
 func FetchCars() []any {
-	return []any{} 
+
+	return [] any{} 
 }

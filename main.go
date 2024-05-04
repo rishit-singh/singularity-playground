@@ -10,31 +10,6 @@ import (
 	"github.com/joho/godotenv"
 )
 
-type ScheduleConfig struct {
-	Preparation          string
-	Provider             string
-	HTTPHeaders          []string
-	URLTemplate          string
-	PricePerGBEpoch      float64
-	PricePerGB           float64
-	PricePerDeal         float64
-	Verified             bool
-	IPNI                 bool
-	KeepUnsealed         bool
-	ScheduleCron         string
-	StartDelay           string
-	Duration             string
-	ScheduleDealNumber   int
-	TotalDealNumber      int
-	ScheduleDealSize     string
-	TotalDealSize        string
-	Notes                string
-	MaxPendingDealSize   string
-	MaxPendingDealNumber int
-	AllowedPieceCIDs     []string
-	Force                bool
-}
-
 type APIConfig struct {
 	Username string
 	Password string
