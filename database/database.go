@@ -1,10 +1,10 @@
-package database;
+package database
 
-import (
-	"gorm.io/gorm"
-)
+// import (
+// 	"gorm.io/gorm"
+// )
 
 func FetchCars() []any {
 
-	return [] any{} 
+	return []any{}
 }
