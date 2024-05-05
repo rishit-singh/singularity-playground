@@ -8,7 +8,7 @@ Credentials = os.getenv("CRED")
 Username, Password = Credentials.split(':')
 
 def PrettyPrint(data) -> str:
-    return json.dumps(ListStorages(), indent=2)
+    return json.dumps(data, indent=2)
 
 def ExploreStorage(storage: str, path: str):
     response = requests.get(f"{BaseURL}/storage/{storage}/explore/{path}", auth=(Username, Password))
