@@ -5,6 +5,7 @@ import (
 	"os"
 	"playground/singularitycontext"
 	"playground/util"
+
 	"github.com/joho/godotenv"
 )
 
@@ -56,7 +57,7 @@ func main() {
 		Config: config,
 	}
 
-	preparations, err := singularity.GetPreparations()
+	preparations, err := singularity.GetStorages()
 
 	if err != nil {
 		print("Failed to get preparations")
@@ -65,7 +66,4 @@ func main() {
 	str, _ := util.ToJson(preparations)
 
 	fmt.Println(str)
-	// for _, val := range preparations {
-	// 	print(val)
-	// }
 }
