@@ -9,28 +9,30 @@ import (
 	"playground/util"
 )
 
-type APIConfig struct {
+type AuthConfig struct {
 	Username string
 	Password string
 	URL      string
 }
 
 type DatasetMetadata struct {
-	URL             string
-	MD5             string
-	DataCollection  string
-	DataType        string
-	AnalysisGroup   string
-	Sample          string
-	Population      string
-	DataReusePolicy string
+	URL             string `json:"url"`
+	MD5             string `json:"md5"`
+	DataCollection  string `json:"data_collection"`
+	DataType        string `json:"data_type"`
+	AnalysisGroup   string `json:"analysis_group"`
+	Sample          string `json:"sample"`
+	Population      string `json:"population"`
+	DataReusePolicy string `json:"data_reuse_policy"`
+}
+
+type StorageConfig struct {
+	Concurrency uint
+	IdleTimeout uint
 }
 
 type SingularityContext struct {
-	Config APIConfig
-}
-
-type StorageRequest struct {
+	Config AuthConfig
 }
 
 func (ctx *SingularityContext) GetStorages() ([]any, error) {
@@ -127,10 +129,29 @@ func (ctx *SingularityContext) CreatePreparation(name string, sourceStorages []s
 	return string(bodyJson), nil
 }
 
-func (ctx *SingularityContext) CreateStorage(name string, path string, metadata DatasetMetadata) (any, error) {
-	data, _ := util.ToJson(metadata)
+func (ctx *SingularityContext) CreateStorage(name string, path string, metadata DatasetMetadata, config AuthConfig, storageConfig StorageConfig) (any, error) {
+	metadataJson, err := util.ToJson(metadata)
 
-	request, err := http.NewRequest("POST", fmt.Sprintf("%s%s", ctx.Config.URL, "preparation"), bytes.NewBuffer([]byte(data)))
+	println(metadataJson)
+
+	dataMap := map[string]any{
+		"name":     name,
+		"path":     path,
+		"metadata": metadataJson,
+		"config": map[string]any{
+			"host":        config.URL,
+			"user":        config.Username,
+			"pass":        config.Password,
+			"concurrency": fmt.Sprintf("%d", storageConfig.Concurrency),
+			"idleTimeout": fmt.Sprintf("%d", storageConfig.IdleTimeout),
+		},
+	}
+
+	data, _ := util.ToJson(dataMap)
+
+	println(fmt.Sprintf("%s%s", ctx.Config.URL, "storage/ftp"))
+
+	request, err := http.NewRequest("POST", fmt.Sprintf("%s%s", ctx.Config.URL, "storage/ftp"), bytes.NewBuffer([]byte(data)))
 
 	request.Header.Set("Content-Type", "application/json")
 	request.SetBasicAuth(ctx.Config.Username, ctx.Config.Password)
@@ -142,6 +163,8 @@ func (ctx *SingularityContext) CreateStorage(name string, path string, metadata 
 		return nil, err
 	}
 
+	fmt.Println(response.Status)
+
 	body, err := io.ReadAll(response.Body)
 
 	if err != nil {
@@ -150,9 +173,9 @@ func (ctx *SingularityContext) CreateStorage(name string, path string, metadata 
 		return nil, err
 	}
 
-	var preparations []any
+	var responseObject map[string]any
 
-	err = json.Unmarshal(body, &preparations)
+	err = json.Unmarshal(body, &responseObject)
 
 	if err != nil {
 		fmt.Printf("Failed to parse response body: %s\n", err)
@@ -160,7 +183,7 @@ func (ctx *SingularityContext) CreateStorage(name string, path string, metadata 
 		return nil, err
 	}
 
-	return preparations, nil
+	return responseObject, nil
 }
 
 // func NewSingularityContext() *SingularityContext {

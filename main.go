@@ -1,10 +1,10 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 	"playground/singularitycontext"
-	"playground/util"
 
 	"github.com/joho/godotenv"
 )
@@ -28,7 +28,7 @@ func LoadEnvs() {
 	}
 }
 
-func LoadConfig() singularitycontext.APIConfig {
+func LoadConfig() singularitycontext.AuthConfig {
 	LoadEnvs()
 
 	variables := make([]string, 3)
@@ -43,7 +43,7 @@ func LoadConfig() singularitycontext.APIConfig {
 		variables[index] = variable
 	}
 
-	return singularitycontext.APIConfig{
+	return singularitycontext.AuthConfig{
 		URL:      variables[0],
 		Username: variables[1],
 		Password: variables[2],
@@ -57,13 +57,34 @@ func main() {
 		Config: config,
 	}
 
-	preparations, err := singularity.GetStorages()
+	// preparations, err := singularity.GetStorages()
+
+	metaJson, err := os.ReadFile(os.Args[1])
+
+	if err != nil {
+		print(err)
+		return
+	}
+
+	var metadata []singularitycontext.DatasetMetadata
+
+	json.Unmarshal([]byte(metaJson), &metadata)
+
+	response, err := singularity.CreateStorage(os.Args[2], os.Args[3], metadata[0], singularitycontext.AuthConfig{
+		URL:      "",
+		Username: "",
+		Password: "",
+	}, singularitycontext.StorageConfig{
+		Concurrency: 0,
+		IdleTimeout: 300,
+	})
 
 	if err != nil {
 		print("Failed to get preparations")
 		return
 	}
-	str, _ := util.ToJson(preparations)
 
-	fmt.Println(str)
+	// str, _ := util.ToJson(response)
+
+	fmt.Println(response)
 }
