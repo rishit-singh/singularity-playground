@@ -39,7 +39,7 @@ def CreateStorage(metadata: dict):
             "pass": "pR2ciGTcNxC_KyfQOsUjOAs",
             "concurrency": "0",
             "idleTimeout": "300",
-            # "metadata": json.dumps(metadata)
+            "metadata": json.dumps(metadata)
         }
     }
     ))
