@@ -35,7 +35,7 @@ type SingularityContext struct {
 	Config AuthConfig
 }
 
-func (ctx *SingularityContext) GetStorages() ([]any, error) {
+func (ctx *SingularityContext) GetStorages() ([]any, error)  {
 	request, err := http.NewRequest("GET", fmt.Sprintf("%s%s", ctx.Config.URL, "storage"), nil)
 
 	authRequest := util.NewBasicAuthRequest(request, util.Credentials{Username: ctx.Config.Username, Password: ctx.Config.Password})
@@ -185,7 +185,3 @@ func (ctx *SingularityContext) CreateStorage(name string, path string, metadata 
 
 	return responseObject, nil
 }
-
-// func NewSingularityContext() *SingularityContext {
-// 	return
-// }

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"playground/singularitycontext"
+	"playground/util"
 
 	"github.com/joho/godotenv"
 )
@@ -15,6 +16,8 @@ var RequiredEnvVars []string = []string{
 	"SG_URL",
 	"SG_USERNAME",
 	"SG_PASSWORD",
+	"FTP_USERNAME",
+	"FTP_PASSWORD",
 }
 
 func LoadEnvs() {
@@ -28,10 +31,10 @@ func LoadEnvs() {
 	}
 }
 
-func LoadConfig() singularitycontext.AuthConfig {
+func LoadConfig() (singularitycontext.AuthConfig, singularitycontext.AuthConfig) {
 	LoadEnvs()
 
-	variables := make([]string, 3)
+	variables := make([]string, 6)
 
 	for index, val := range RequiredEnvVars {
 		variable, exists := os.LookupEnv(val)
@@ -44,20 +47,27 @@ func LoadConfig() singularitycontext.AuthConfig {
 	}
 
 	return singularitycontext.AuthConfig{
-		URL:      variables[0],
-		Username: variables[1],
-		Password: variables[2],
-	}
+			URL:      variables[0],
+			Username: variables[1],
+			Password: variables[2],
+		}, singularitycontext.AuthConfig{
+			URL:      "",
+			Username: variables[3],
+			Password: variables[4],
+		}
 }
 
 func main() {
-	config := LoadConfig()
+	config, ftpConfig := LoadConfig()
+
+	ftpConfig.URL = os.Args[4] // os.Args[3]
+	// print(ftpConfig)
 
 	singularity := singularitycontext.SingularityContext{
 		Config: config,
 	}
 
-	// preparations, err := singularity.GetStorages()
+	// response, err := singularity.GetStorages()
 
 	metaJson, err := os.ReadFile(os.Args[1])
 
@@ -70,21 +80,23 @@ func main() {
 
 	json.Unmarshal([]byte(metaJson), &metadata)
 
+	// fmt.Printf("Meta size: %d", len(metadata))
+
 	response, err := singularity.CreateStorage(os.Args[2], os.Args[3], metadata[0], singularitycontext.AuthConfig{
-		URL:      "",
-		Username: "",
-		Password: "",
+		URL:      ftpConfig.URL,
+		Username: ftpConfig.Username,
+		Password: ftpConfig.Password,
 	}, singularitycontext.StorageConfig{
 		Concurrency: 0,
 		IdleTimeout: 300,
 	})
 
-	if err != nil {
-		print("Failed to get preparations")
-		return
-	}
+	// if err != nil {
+	// 	print("Failed to get create storage")
+	// 	return
+	// }
 
-	// str, _ := util.ToJson(response)
+	str, _ := util.ToJson(response)
 
-	fmt.Println(response)
+	fmt.Println(str)
 }

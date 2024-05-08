@@ -2,6 +2,7 @@ import os
 import re
 import sys
 import json
+import uuid
 import requests
 
 BaseURL = os.getenv("BASE_URL")
@@ -31,15 +32,17 @@ def CreateStorage(metadata: dict):
 
     nameSplit = split[6].split('_')
 
+    metadata_id = str(uuid.uuid4())
+
     print(PrettyPrint({
         "name": f"ftp-{split[4]}-{'-'.join(nameSplit)}",
         "path": path,
         "config": {
-            "user": "anonymous",
-            "pass": "pR2ciGTcNxC_KyfQOsUjOAs",
+            "user": "",
+            "pass": "",
             "concurrency": "0",
             "idleTimeout": "300",
-            "metadata": json.dumps(metadata)
+            "metadata": json.dumps(metadata_id)
         }
     }
     ))
@@ -53,7 +56,7 @@ def CreateStorage(metadata: dict):
             "host": host,
             "concurrency": "0",
             "idleTimeout": "300",
-            "metadata": json.dumps(metadata)
+            "metadata_id": json.dumps(metadata_id)
         }
     })
 
